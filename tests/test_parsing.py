@@ -58,3 +58,38 @@ def test_gmail_sender_matching():
     assert gmail_source.match_source("hi@dataelixir.com", srcs) == "NL009"
     assert gmail_source.match_source("thebatch@deeplearning.ai", srcs) == "NL003"
     assert gmail_source.match_source("dan@tldrnewsletter.com", srcs) is None
+
+
+def test_gmail_substack_and_platform_senders():
+    srcs = [
+        ("NL004", None, "https://datascienceweekly.substack.com"),
+        ("NL019", None, "https://seattledataguy.substack.com"),
+        ("NL025", None, "https://www.therundown.ai"),
+    ]
+    assert gmail_source.match_source("seattledataguy@substack.com", srcs) == "NL019"
+    assert gmail_source.match_source("datascienceweekly@substack.com", srcs) == "NL004"
+    assert gmail_source.match_source("someoneelse@substack.com", srcs) is None
+    assert gmail_source.match_source("news@medium.com", srcs) is None
+
+
+def test_podcast_text_labelled_as_description():
+    (e,) = feeds.parse_feed("PC001", "podcast_rss", (FIX / "podcast.xml").read_bytes())
+    e.body_text, e.text_source = "Show notes " * 50, "feed_full"
+    extract.finalize_text(e)
+    assert e.text_source == "description_only"
+
+
+def test_blocked_page_records_error(monkeypatch):
+    from datetime import datetime, timezone
+    from collector.models import Item
+
+    class R:
+        status_code = 202
+        text = "<html>challenge</html>"
+
+    monkeypatch.setattr(extract, "allowed_by_robots", lambda u: True)
+    monkeypatch.setattr(extract.http, "get", lambda u, **k: R())
+    it = Item("BL001", "x", "Title", url="https://example.com/a", summary="teaser text",
+              published_at=datetime.now(timezone.utc))
+    extract.finalize_text(it)
+    assert it.text_source == "description_only" and "202" in it.extraction_error

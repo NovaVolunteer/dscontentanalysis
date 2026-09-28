@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from collector import config, db, http, run
+from collector import config, db, extract, http, run
 
 FIX = Path(__file__).parent / "fixtures"
 DSN = os.environ.get("TEST_DATABASE_URL")
@@ -20,6 +20,8 @@ ARTICLE = "<html><body><article><h1>GBM</h1>" + "<p>" + " ".join(["boosting"] * 
 
 
 class Resp:
+    status_code = 200
+
     def __init__(self, body):
         self.content = body if isinstance(body, bytes) else body.encode()
         self.text = self.content.decode()
@@ -51,6 +53,7 @@ def fake_get(url, **kw):
 
 def test_end_to_end(monkeypatch):
     monkeypatch.setattr(http, "get", fake_get)
+    monkeypatch.setattr(extract, "allowed_by_robots", lambda url: True)
     monkeypatch.setattr(config, "DATABASE_URL", DSN)
     conn = db.connect(DSN)
     conn.execute("update sources set feed_url = 'https://practicalai.fm/broken' where source_id = 'PC004'")

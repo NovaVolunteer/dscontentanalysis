@@ -14,6 +14,8 @@ from collector import db  # noqa: E402
 
 
 def ingest_method(row: dict) -> str:
+    if (row.get("ingest_method") or "").strip():  # explicit override in the CSV
+        return row["ingest_method"].strip()
     if row["medium"] == "podcast":
         return "podcast_rss"
     if row["medium"] == "youtube":

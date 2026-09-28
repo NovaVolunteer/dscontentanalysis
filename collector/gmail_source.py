@@ -50,13 +50,31 @@ def base_domain(host: str) -> str:
     return ".".join(parts[-2:]) if len(parts) >= 2 else host
 
 
+# Shared sending platforms: a domain match alone would lump every publication together.
+PLATFORM_DOMAINS = {"substack.com", "medium.com", "beehiiv.com", "gmail.com", "mailchimp.com", "convertkit.com"}
+
+
 def match_source(sender_addr: str, email_sources: list) -> Optional[str]:
-    """email_sources: [(source_id, email_sender, primary_url)]. Exact sender first, then domain."""
+    """email_sources: [(source_id, email_sender, primary_url)].
+
+    1. exact match on sources.email_sender
+    2. Substack: <pub>@substack.com matches a source hosted at <pub>.substack.com
+    3. sender's domain matches the source website's domain (skipped for shared platforms)
+    """
     sender_addr = sender_addr.lower()
+    local, _, host = sender_addr.partition("@")
     for sid, sender, _ in email_sources:
         if sender and sender.lower() == sender_addr:
             return sid
-    dom = base_domain(sender_addr.split("@")[-1])
+    dom = base_domain(host)
+    if dom == "substack.com":
+        for sid, _, url in email_sources:
+            h = (urlparse(url).hostname or "").lower()
+            if h == f"{local}.substack.com":
+                return sid
+        return None
+    if dom in PLATFORM_DOMAINS:
+        return None
     for sid, _, url in email_sources:
         if base_domain(urlparse(url).hostname or "") == dom:
             return sid
