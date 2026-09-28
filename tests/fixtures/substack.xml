@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<channel><title>Test Substack</title><link>https://example.substack.com</link>
+<item><title>Why gradient boosting still wins on tabular data</title>
+<link>https://example.substack.com/p/gbm</link><guid isPermaLink="false">https://example.substack.com/p/gbm</guid>
+<dc:creator>Jane Analyst</dc:creator><pubDate>Mon, 28 Sep 2026 09:00:00 GMT</pubDate>
+<description>A short teaser.</description>
+<content:encoded><![CDATA[<p>Gradient boosting remains strong.</p><p>XGBoost &amp; LightGBM dominate Kaggle tabular competitions.</p><script>bad()</script>]]></content:encoded>
+<category>machine learning</category></item>
+<item><title>Teaser only post</title><link>https://example.substack.com/p/teaser</link>
+<guid>teaser-guid</guid><pubDate>Sun, 01 Jan 2023 09:00:00 GMT</pubDate>
+<description>&lt;p&gt;Only a summary here.&lt;/p&gt;</description></item>
+</channel></rss>

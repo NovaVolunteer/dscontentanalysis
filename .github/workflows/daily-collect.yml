@@ -1,0 +1,48 @@
+name: Daily collection
+
+on:
+  schedule:
+    # 10:15 UTC = 6:15 AM Eastern during daylight time (5:15 AM in winter).
+    # GitHub may start scheduled runs a few minutes late.
+    - cron: "15 10 * * *"
+  workflow_dispatch:
+    inputs:
+      priority:
+        description: "Limit to one priority (P1/P2/P3); blank = all"
+        required: false
+        default: ""
+
+concurrency:
+  group: daily-collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Unit tests
+        run: pytest -q tests/test_parsing.py
+
+      - name: Collect and analyze
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GMAIL_CLIENT_ID: ${{ secrets.GMAIL_CLIENT_ID }}
+          GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
+          GMAIL_REFRESH_TOKEN: ${{ secrets.GMAIL_REFRESH_TOKEN }}
+          GMAIL_QUERY: ${{ vars.GMAIL_QUERY || 'newer_than:3d -in:sent -in:chats' }}
+        run: |
+          if [ -n "${{ github.event.inputs.priority }}" ]; then
+            python -m collector.run --priority "${{ github.event.inputs.priority }}"
+          else
+            python -m collector.run
+          fi

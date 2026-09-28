@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom">
+<title>StatQuest with Josh Starmer</title>
+<entry><id>yt:video:abc123XYZ00</id><yt:videoId>abc123XYZ00</yt:videoId>
+<title>Transformers, Clearly Explained</title>
+<link rel="alternate" href="https://www.youtube.com/watch?v=abc123XYZ00"/>
+<author><name>StatQuest</name></author><published>2026-09-27T12:00:00+00:00</published>
+<media:group><media:title>Transformers, Clearly Explained</media:title>
+<media:description>Attention, positional encoding and more.</media:description></media:group></entry>
+</feed>
